@@ -4,6 +4,7 @@ const items = [
   { key: 'dashboard', label: 'لوحة التحكم', icon: '📊' },
   { key: 'players', label: 'اللاعبين', icon: '👥' },
   { key: 'config', label: 'إعداد الحقول', icon: '⚙️' },
+  { key: 'admins', label: 'المديرين', icon: '🔐' },
 ]
 
 export default function Sidebar({ activeSection, onNavigate }) {
@@ -14,7 +15,7 @@ export default function Sidebar({ activeSection, onNavigate }) {
       <div className="p-5 border-b border-white/10">
         <span className="text-3xl">⚽</span>
         <h2 className="text-lg font-bold mt-1">نظام اللاعبين</h2>
-        <p className="text-xs text-white/60 mt-1">{admin?.fullName || 'المدير'}</p>
+        <p className="text-xs text-white/60 mt-1">{admin?.username || 'المدير'}</p>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">

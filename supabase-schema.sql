@@ -59,8 +59,7 @@ ON CONFLICT DO NOTHING;
 -- Seed dropdown options for 'position'
 UPDATE fields SET dropdown_options = 'مهاجم,مدافع,وسط,حارس' WHERE field_name = 'position' AND dropdown_options IS NULL;
 
--- Seed default admin (password: admin123)
--- SHA-256 hash of 'admin123'
+-- Seed default admin (password: 040878001)
 INSERT INTO admins (username, password_hash)
-SELECT 'admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
-WHERE NOT EXISTS (SELECT 1 FROM admins WHERE username = 'admin');
+SELECT 'saadmohammed', 'a4f340fe739b3c2cc8756df7f68e3a39070d9327c8629f437f1d84724fb789aa'
+WHERE NOT EXISTS (SELECT 1 FROM admins WHERE username = 'saadmohammed');

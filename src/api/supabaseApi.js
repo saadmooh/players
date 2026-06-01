@@ -202,6 +202,36 @@ export const configAPI = {
   },
 }
 
+export const adminAPI = {
+  async getAll(token) {
+    await validateToken(token)
+    const { data, error } = await supabase.from('admins').select('id, username, created_at').order('created_at')
+    if (error) throw new Error(error.message)
+    return data || []
+  },
+
+  async create(token, username, password) {
+    await validateToken(token)
+    const password_hash = await sha256(password)
+    const { error } = await supabase.from('admins').insert({ username, password_hash })
+    if (error) {
+      if (error.message.includes('duplicate')) throw new Error('اسم المستخدم موجود مسبقاً')
+      throw new Error(error.message)
+    }
+    return true
+  },
+
+  async delete(token, adminId) {
+    await validateToken(token)
+    const { data: session } = await supabase.from('sessions').select('admin_id').eq('token', token).single()
+    if (session?.admin_id === adminId) throw new Error('لا يمكنك حذف نفسك')
+
+    const { error } = await supabase.from('admins').delete().eq('id', adminId)
+    if (error) throw new Error(error.message)
+    return true
+  },
+}
+
 export const statsAPI = {
   async get(token) {
     await validateToken(token)
@@ -224,38 +254,4 @@ export const statsAPI = {
     }
   },
 
-  async seedMockData(token) {
-    await validateToken(token)
-    await supabase.from('players').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-
-    const { data: activeFields } = await supabase.from('fields').select('*').eq('is_active', true).order('sort_order')
-    if (!activeFields?.length) throw new Error('لا يوجد حقول نشطة')
-
-    const firstNames = ['أحمد', 'محمد', 'علي', 'خالد', 'عمر', 'حسن', 'محمود', 'سامي', 'نادر', 'بسام']
-    const lastNames = ['السيد', 'عبدالله', 'الغامدي', 'الشمراني', 'القحطاني', 'العتيبي', 'الزهراني', 'الشهري', 'الجهني', 'المطيري']
-    const positions = ['مهاجم', 'مدافع', 'وسط', 'حارس']
-    const notes = ['لاعب ممتاز', 'محتاج تدريب', 'جديد', 'خبرة', '', '']
-
-    const players = Array.from({ length: 50 }, (_, i) => {
-      const data = {}
-      const fieldConfig = {}
-      activeFields.forEach(f => { fieldConfig[f.field_name] = f })
-      if (fieldConfig.playerName) data.playerName = firstNames[i % 10] + ' ' + lastNames[i % 10]
-      if (fieldConfig.phoneNumber) data.phoneNumber = '05' + String(500000000 + Math.floor(Math.random() * 99999999))
-      if (fieldConfig.age) data.age = String(18 + Math.floor(Math.random() * 30))
-      if (fieldConfig.position) data.position = positions[Math.floor(Math.random() * positions.length)]
-      if (fieldConfig.email) data.email = 'player' + i + '@example.com'
-      if (fieldConfig.notes) data.notes = notes[Math.floor(Math.random() * notes.length)]
-      return {
-        submission_id: 'PLAYER-SEED-' + String(i + 1).padStart(3, '0'),
-        data,
-        created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-    })
-
-    const { error } = await supabase.from('players').insert(players)
-    if (error) throw new Error(error.message)
-
-    return { players: 50, fields: activeFields.length }
-  },
 }

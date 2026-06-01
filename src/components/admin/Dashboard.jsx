@@ -1,29 +1,10 @@
-import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../../context/AuthContext'
 import { useStats } from '../../hooks/useStats'
 import LoadingSpinner from '../shared/LoadingSpinner'
-import { statsAPI } from '../../api/supabaseApi'
 
 export default function Dashboard() {
   const { admin } = useAuth()
   const { data: stats, isLoading } = useStats(admin?.token)
-  const [seeding, setSeeding] = useState(false)
-  const qc = useQueryClient()
-
-  async function handleSeed() {
-    if (!confirm('سيتم مسح جميع البيانات الحالية وإضافة 50 لاعب وهمي. هل أنت متأكد؟')) return
-    setSeeding(true)
-    try {
-      const result = await statsAPI.seedMockData(admin.token)
-      alert(`تم إدخال ${result.players} لاعب و ${result.fields} حقل بنجاح`)
-      qc.invalidateQueries()
-    } catch (err) {
-      alert(err.message)
-    } finally {
-      setSeeding(false)
-    }
-  }
 
   if (isLoading) return <LoadingSpinner />
 
@@ -36,16 +17,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800">لوحة التحكم</h2>
-        <button
-          onClick={handleSeed}
-          disabled={seeding}
-          className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {seeding ? 'جاري الإدخال...' : '🧪 إدخال بيانات تجريبية'}
-        </button>
-      </div>
+      <h2 className="text-xl font-bold text-gray-800 mb-6">لوحة التحكم</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {cards.map(card => (
