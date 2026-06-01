@@ -1,0 +1,66 @@
+-- Run this in Supabase SQL Editor (https://supabase.com/dashboard/project/xylzhndprdnltljbklet/sql/new)
+
+-- 1. Fields table (dynamic form configuration)
+CREATE TABLE IF NOT EXISTS fields (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  field_name TEXT NOT NULL,
+  field_label TEXT NOT NULL,
+  field_type TEXT NOT NULL DEFAULT 'text',
+  is_required BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  dropdown_options TEXT,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 2. Players table (registration data stored as JSONB)
+CREATE TABLE IF NOT EXISTS players (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  submission_id TEXT UNIQUE NOT NULL,
+  data JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 3. Admins table
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 4. Sessions table (custom auth tokens)
+CREATE TABLE IF NOT EXISTS sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  admin_id UUID NOT NULL REFERENCES admins(id) ON DELETE CASCADE,
+  token TEXT UNIQUE NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_players_created_at ON players(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_players_submission_id ON players(submission_id);
+CREATE INDEX IF NOT EXISTS idx_fields_sort_order ON fields(sort_order);
+CREATE INDEX IF NOT EXISTS idx_fields_active ON fields(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+
+-- Seed default fields
+INSERT INTO fields (field_name, field_label, field_type, is_required, is_active, sort_order) VALUES
+  ('playerName', 'اسم اللاعب', 'text', true, true, 0),
+  ('phoneNumber', 'رقم الهاتف', 'tel', true, true, 1),
+  ('age', 'العمر', 'number', false, true, 2),
+  ('position', 'المركز', 'select', true, true, 3),
+  ('email', 'البريد الإلكتروني', 'email', false, true, 4),
+  ('notes', 'ملاحظات', 'textarea', false, true, 5)
+ON CONFLICT DO NOTHING;
+
+-- Seed dropdown options for 'position'
+UPDATE fields SET dropdown_options = 'مهاجم,مدافع,وسط,حارس' WHERE field_name = 'position' AND dropdown_options IS NULL;
+
+-- Seed default admin (password: admin123)
+-- SHA-256 hash of 'admin123'
+INSERT INTO admins (username, password_hash)
+SELECT 'admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
+WHERE NOT EXISTS (SELECT 1 FROM admins WHERE username = 'admin');
