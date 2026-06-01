@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cp docs/index.html docs/404.html",
+    "build": "vite build && cp dist/index.html dist/404.html",
+    "deploy": "npm run build && cp dist/index.html index.html && rm -rf assets && cp -r dist/assets assets && cp dist/index.html 404.html && cp dist/favicon.svg . && cp dist/icons.svg .",
     "lint": "eslint .",
     "preview": "vite preview"
   },

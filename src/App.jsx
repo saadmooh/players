@@ -19,7 +19,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/players">
           <Routes>
             <Route path="/" element={<UserPage />} />
             <Route path="/admin/login" element={<AdminPage view="login" />} />

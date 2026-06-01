@@ -3,7 +3,9 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  root: '.',
   base: '/players/',
-  build: { outDir: 'docs' },
+  publicDir: 'public',
+  build: { outDir: 'dist', emptyOutDir: true },
   plugins: [react(), tailwindcss()],
 })
