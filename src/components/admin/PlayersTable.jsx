@@ -305,8 +305,7 @@ export default function PlayersTable() {
               </div>
             )
           })}
-          {(filterOptions._submitted_by?.length > 0) && (
-            <div className="min-w-[150px]">
+          <div className="min-w-[150px]">
               <label className="block text-xs text-gray-500 mb-1.5 font-medium">المدرب</label>
               <select
                 value={filters._submitted_by || ''}
@@ -314,14 +313,12 @@ export default function PlayersTable() {
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300"
               >
                 <option value="">الكل</option>
-                {filterOptions._submitted_by.map(opt => (
+                {(filterOptions._submitted_by || []).map(opt => (
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
             </div>
-          )}
-          {(filterOptions._team_name?.length > 0) && (
-            <div className="min-w-[150px]">
+          <div className="min-w-[150px]">
               <label className="block text-xs text-gray-500 mb-1.5 font-medium">الفريق</label>
               <select
                 value={filters._team_name || ''}
@@ -329,12 +326,11 @@ export default function PlayersTable() {
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300"
               >
                 <option value="">الكل</option>
-                {filterOptions._team_name.map(opt => (
+                {(filterOptions._team_name || []).map(opt => (
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
             </div>
-          )}
           {(filterOptions._coach_phone?.length > 0) && (
             <div className="min-w-[150px]">
               <label className="block text-xs text-gray-500 mb-1.5 font-medium">هاتف المدرب</label>
