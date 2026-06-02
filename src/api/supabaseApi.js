@@ -144,6 +144,13 @@ export const playersAPI = {
     return true
   },
 
+  async bulkDelete(token, submissionIDs) {
+    await validateToken(token)
+    const { error } = await supabase.from('players').delete().in('submission_id', submissionIDs)
+    if (error) throw new Error(error.message)
+    return true
+  },
+
   async exportExcel(token) {
     await validateToken(token)
     const { data, error } = await supabase.from('players').select('*').order('created_at', { ascending: false })

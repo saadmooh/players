@@ -18,6 +18,14 @@ export function useDeletePlayer(token) {
   })
 }
 
+export function useBulkDeletePlayers(token) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (submissionIDs) => playersAPI.bulkDelete(token, submissionIDs),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['players'] }),
+  })
+}
+
 export function useUpdatePlayer(token) {
   const queryClient = useQueryClient()
   return useMutation({

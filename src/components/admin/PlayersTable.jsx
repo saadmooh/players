@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { usePlayers, useDeletePlayer, useUpdatePlayer } from '../../hooks/usePlayers'
+import { usePlayers, useDeletePlayer, useBulkDeletePlayers, useUpdatePlayer } from '../../hooks/usePlayers'
 import { useActiveFields } from '../../hooks/useFields'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../shared/LoadingSpinner'
@@ -35,13 +35,42 @@ export default function PlayersTable() {
   const [editPlayer, setEditPlayer] = useState(null)
   const [exporting, setExporting] = useState(false)
   const [filterOptions, setFilterOptions] = useState({})
+  const [selected, setSelected] = useState(new Set())
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false)
 
   const { data: fields = [] } = useActiveFields()
   const searchFields = fields.map(f => f.FieldName)
 
   const { data, isLoading } = usePlayers(admin?.token, page, search, filters, searchFields)
   const deleteMutation = useDeletePlayer(admin?.token)
+  const bulkDeleteMutation = useBulkDeletePlayers(admin?.token)
   const updateMutation = useUpdatePlayer(admin?.token)
+
+  const players = data?.players ?? []
+  const allSelected = players.length > 0 && players.every(p => selected.has(p.SubmissionID))
+
+  function toggleSelect(id) {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(players.map(p => p.SubmissionID)))
+    }
+  }
+
+  function handleBulkDelete() {
+    bulkDeleteMutation.mutate([...selected], {
+      onSettled: () => { setSelected(new Set()); setBulkDeleteConfirm(false) },
+    })
+  }
 
   useEffect(() => {
     if (!fields.length) return
@@ -112,10 +141,8 @@ export default function PlayersTable() {
 
   if (isLoading) return <LoadingSpinner />
 
-  const players = data?.players ?? []
   const total = data?.total ?? 0
   const pages = data?.pages ?? 0
-
   const filterableFields = fields.filter(f => f.FieldType === 'select')
 
   return (
@@ -132,6 +159,18 @@ export default function PlayersTable() {
           </button>
         </div>
       </div>
+
+      {selected.size > 0 && (
+        <div className="bg-primary/10 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
+          <span className="text-sm font-semibold text-gray-700">تم اختيار {selected.size} لاعب</span>
+          <button
+            onClick={() => setBulkDeleteConfirm(true)}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+          >
+            حذف المحدد
+          </button>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm p-4 mb-4 space-y-3">
         <div className="flex flex-wrap gap-3 items-end">
@@ -179,6 +218,11 @@ export default function PlayersTable() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
               <tr>
+                <th className="px-4 py-3 text-right w-8">
+                  <input type="checkbox" checked={allSelected}
+                    onChange={toggleSelectAll}
+                    className="rounded border-gray-300 text-primary focus:ring-primary" />
+                </th>
                 {fields.map(f => (
                   <th key={f.FieldID} className="px-4 py-3 text-right whitespace-nowrap">{f.FieldLabel}</th>
                 ))}
@@ -188,7 +232,12 @@ export default function PlayersTable() {
             </thead>
             <tbody>
               {players.map(p => (
-                <tr key={p.SubmissionID} className="border-t hover:bg-gray-50">
+                <tr key={p.SubmissionID} className={`border-t hover:bg-gray-50 ${selected.has(p.SubmissionID) ? 'bg-primary/5' : ''}`}>
+                  <td className="px-4 py-3">
+                    <input type="checkbox" checked={selected.has(p.SubmissionID)}
+                      onChange={() => toggleSelect(p.SubmissionID)}
+                      className="rounded border-gray-300 text-primary focus:ring-primary" />
+                  </td>
                   {fields.map(f => (
                     <td key={f.FieldID} className="px-4 py-3 max-w-[200px] truncate">{p[f.FieldName] || '—'}</td>
                   ))}
@@ -215,7 +264,7 @@ export default function PlayersTable() {
               ))}
               {players.length === 0 && (
                 <tr>
-                  <td colSpan={fields.length + 2} className="px-4 py-8 text-center text-gray-400">لا يوجد لاعبين</td>
+                  <td colSpan={fields.length + 3} className="px-4 py-8 text-center text-gray-400">لا يوجد لاعبين</td>
                 </tr>
               )}
             </tbody>
@@ -246,6 +295,14 @@ export default function PlayersTable() {
           message="هل أنت متأكد من حذف هذا اللاعب؟"
           onConfirm={handleDelete}
           onCancel={() => setDeleteID(null)}
+        />
+      )}
+
+      {bulkDeleteConfirm && (
+        <ConfirmDialog
+          message={`هل أنت متأكد من حذف ${selected.size} لاعب؟`}
+          onConfirm={handleBulkDelete}
+          onCancel={() => setBulkDeleteConfirm(false)}
         />
       )}
 
