@@ -23,10 +23,10 @@ export default function UserPage() {
             <span className="text-4xl">✍️</span>
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">مرحباً بك</h2>
-          <p className="text-gray-500 text-sm mb-8">من فضلك أدخل بياناتك قبل البدء</p>
+          <p className="text-gray-500 text-sm mb-8">من فضلك أدخل اسمك و فريقك قبل البدء</p>
           <input
             type="text"
-            placeholder="الاسم الثلاثي"
+            placeholder="الاسم"
             value={nameInput}
             onChange={e => setNameInput(e.target.value)}
             className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary bg-gray-50/50 text-right transition-all duration-300 mb-3"
