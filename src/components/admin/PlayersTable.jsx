@@ -166,11 +166,17 @@ export default function PlayersTable() {
   const handleExportCSV = useCallback(async () => {
     setExporting(true)
     try {
-      const { data: allData } = await supabase
-        .from('players')
-        .select('*')
-        .order('created_at', { ascending: false })
-      const rows = allData.map(db => {
+      let query = supabase.from('players').select('*')
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) query = query.eq(`data->>${key}`, value)
+      })
+      if (search && searchFields.length > 0) {
+        const conditions = searchFields.map(f => `data->>${f}.ilike.%${search}%`)
+        query = query.or(conditions.join(','))
+      }
+      const { data: allData, error } = await query.order('created_at', { ascending: false })
+      if (error) throw new Error(error.message)
+      const rows = (allData || []).map(db => {
         const row = {}
         csvColumns?.forEach(key => {
           if (key === '_submitted_by') row['المدرب'] = db.data?._submitted_by || ''
@@ -190,7 +196,7 @@ export default function PlayersTable() {
     } finally {
       setExporting(false)
     }
-  }, [fields, csvColumns])
+  }, [fields, csvColumns, filters, search, searchFields])
 
   if (isLoading) return <LoadingSpinner />
 
