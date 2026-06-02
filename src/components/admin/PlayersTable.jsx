@@ -55,7 +55,7 @@ export default function PlayersTable() {
   const searchFields = [...fields.map(f => f.FieldName), '_submitted_by', '_team_name', '_coach_phone']
 
   const systemColumnDefs = [
-    { key: '_submitted_by', label: 'المسجل' },
+    { key: '_submitted_by', label: 'المدرب' },
     { key: '_team_name', label: 'الفريق' },
     { key: '_coach_phone', label: 'هاتف المدرب' },
     { key: '_submitted_at', label: 'تاريخ التسجيل' },
@@ -173,7 +173,7 @@ export default function PlayersTable() {
       const rows = allData.map(db => {
         const row = {}
         csvColumns?.forEach(key => {
-          if (key === '_submitted_by') row['المسجل'] = db.data?._submitted_by || ''
+          if (key === '_submitted_by') row['المدرب'] = db.data?._submitted_by || ''
           else if (key === '_team_name') row['الفريق'] = db.data?._team_name || ''
           else if (key === '_coach_phone') row['هاتف المدرب'] = db.data?._coach_phone || ''
           else if (key === '_submitted_at') row['تاريخ التسجيل'] = new Date(db.created_at).toLocaleDateString('ar')
@@ -307,7 +307,7 @@ export default function PlayersTable() {
           })}
           {(filterOptions._submitted_by?.length > 0) && (
             <div className="min-w-[150px]">
-              <label className="block text-xs text-gray-500 mb-1.5 font-medium">المسجل</label>
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">المدرب</label>
               <select
                 value={filters._submitted_by || ''}
                 onChange={(e) => handleFilterChange('_submitted_by', e.target.value)}
@@ -374,7 +374,7 @@ export default function PlayersTable() {
                 {fields.map(f => (
                   <th key={f.FieldID} className="px-4 py-4 text-right whitespace-nowrap font-semibold">{f.FieldLabel}</th>
                 ))}
-                <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">المسجل</th>
+                <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">المدرب</th>
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">الفريق</th>
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">هاتف المدرب</th>
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">تاريخ التسجيل</th>

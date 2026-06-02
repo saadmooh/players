@@ -81,7 +81,7 @@ export default function UserPage() {
       <main className="max-w-2xl mx-auto p-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 px-5 py-3.5 mb-5 flex items-center justify-between">
           <div className="flex items-center gap-3 text-sm text-gray-600">
-            <span>المسجل: <strong className="text-primary">{submitterName}</strong></span>
+            <span>المدرب: <strong className="text-primary">{submitterName}</strong></span>
             <span className="text-gray-300">|</span>
             <span>الفريق: <strong className="text-primary">{teamName}</strong></span>
             <span className="text-gray-300">|</span>
