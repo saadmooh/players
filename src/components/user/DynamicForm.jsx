@@ -27,7 +27,7 @@ export default function DynamicForm({ submitterName, teamName, onSuccess }) {
       default:
         return (
           <input
-            type={field.FieldType || 'text'}
+            type={field.FieldType === 'number' ? 'number' : 'text'}
             {...register(field.FieldName, rules)}
             className={baseClass}
             placeholder={`أدخل ${field.FieldLabel}`}
