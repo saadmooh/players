@@ -10,11 +10,15 @@ export default function UserPage() {
   const [submitterName, setSubmitterName] = useState('')
   const [teamName, setTeamName] = useState('')
   const [coachPhone, setCoachPhone] = useState('')
+  const [tournamentType, setTournamentType] = useState('')
   const [nameInput, setNameInput] = useState('')
   const [teamInput, setTeamInput] = useState('')
   const [phoneInput, setPhoneInput] = useState('')
+  const [tournamentInput, setTournamentInput] = useState('')
   const [nameConfirmed, setNameConfirmed] = useState(false)
   const navigate = useNavigate()
+
+  const tournamentOptions = ['الكهول', 'كاس بودة للشباب', 'كاس الطفولة']
 
   if (!nameConfirmed) {
     return (
@@ -46,12 +50,22 @@ export default function UserPage() {
             placeholder="هاتف المدرب"
             value={phoneInput}
             onChange={e => setPhoneInput(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary bg-gray-50/50 text-right transition-all duration-300 mb-4"
-            onKeyDown={e => { if (e.key === 'Enter' && nameInput.trim() && teamInput.trim() && phoneInput.trim()) { setSubmitterName(nameInput.trim()); setTeamName(teamInput.trim()); setCoachPhone(phoneInput.trim()); setNameConfirmed(true) } }}
+            className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary bg-gray-50/50 text-right transition-all duration-300 mb-3"
           />
+          <select
+            value={tournamentInput}
+            onChange={e => setTournamentInput(e.target.value)}
+            className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary bg-gray-50/50 text-right transition-all duration-300 mb-4"
+            onKeyDown={e => { if (e.key === 'Enter' && nameInput.trim() && teamInput.trim() && phoneInput.trim() && tournamentInput) { setSubmitterName(nameInput.trim()); setTeamName(teamInput.trim()); setCoachPhone(phoneInput.trim()); setTournamentType(tournamentInput); setNameConfirmed(true) } }}
+          >
+            <option value="">— اختر نوع البطولة —</option>
+            {tournamentOptions.map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
           <button
-            disabled={!nameInput.trim() || !teamInput.trim() || !phoneInput.trim()}
-            onClick={() => { setSubmitterName(nameInput.trim()); setTeamName(teamInput.trim()); setCoachPhone(phoneInput.trim()); setNameConfirmed(true) }}
+            disabled={!nameInput.trim() || !teamInput.trim() || !phoneInput.trim() || !tournamentInput}
+            onClick={() => { setSubmitterName(nameInput.trim()); setTeamName(teamInput.trim()); setCoachPhone(phoneInput.trim()); setTournamentType(tournamentInput); setNameConfirmed(true) }}
             className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98]"
           >
             بدء التسجيل
@@ -86,9 +100,11 @@ export default function UserPage() {
             <span>الفريق: <strong className="text-primary">{teamName}</strong></span>
             <span className="text-gray-300">|</span>
             <span>هاتف المدرب: <strong className="text-primary" dir="ltr">{coachPhone}</strong></span>
+            <span className="text-gray-300">|</span>
+            <span>البطولة: <strong className="text-primary">{tournamentType}</strong></span>
           </div>
           <button
-            onClick={() => { setNameInput(''); setTeamInput(''); setPhoneInput(''); setNameConfirmed(false) }}
+            onClick={() => { setNameInput(''); setTeamInput(''); setPhoneInput(''); setTournamentInput(''); setNameConfirmed(false) }}
             className="text-xs text-gray-400 hover:text-gray-600 underline-offset-2 hover:underline transition-colors"
           >
             تغيير
@@ -120,10 +136,10 @@ export default function UserPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           {activeTab === 'manual' && (
-            <DynamicForm submitterName={submitterName} teamName={teamName} coachPhone={coachPhone} onSuccess={(msg) => setToast({ type: 'success', msg })} />
+            <DynamicForm submitterName={submitterName} teamName={teamName} coachPhone={coachPhone} tournamentType={tournamentType} onSuccess={(msg) => setToast({ type: 'success', msg })} />
           )}
           {activeTab === 'excel' && (
-            <ExcelUpload submitterName={submitterName} teamName={teamName} coachPhone={coachPhone} onSuccess={(msg) => setToast({ type: 'success', msg })} />
+            <ExcelUpload submitterName={submitterName} teamName={teamName} coachPhone={coachPhone} tournamentType={tournamentType} onSuccess={(msg) => setToast({ type: 'success', msg })} />
           )}
         </div>
       </main>

@@ -52,11 +52,12 @@ export default function PlayersTable() {
   }, [showColumnPicker])
 
   const { data: fields = [] } = useActiveFields()
-  const searchFields = [...fields.map(f => f.FieldName), '_submitted_by', '_team_name', '_coach_phone']
+  const searchFields = [...fields.map(f => f.FieldName), '_submitted_by', '_team_name', '_coach_phone', '_tournament_type']
 
   const systemColumnDefs = [
     { key: '_submitted_by', label: 'المدرب' },
     { key: '_team_name', label: 'الفريق' },
+    { key: '_tournament_type', label: 'نوع البطولة' },
     { key: '_coach_phone', label: 'هاتف المدرب' },
     { key: '_submitted_at', label: 'تاريخ التسجيل' },
   ]
@@ -127,6 +128,11 @@ export default function PlayersTable() {
         setFilterOptions(prev => ({ ...prev, _coach_phone: vals.map(v => v.value).filter(Boolean) }))
       }
     })
+    supabase.rpc('get_distinct_field_values', { field_name: '_tournament_type' }).then(({ data: vals }) => {
+      if (vals?.length) {
+        setFilterOptions(prev => ({ ...prev, _tournament_type: vals.map(v => v.value).filter(Boolean) }))
+      }
+    })
   }, [fields])
 
   function handleDelete() {
@@ -181,6 +187,7 @@ export default function PlayersTable() {
         csvColumns?.forEach(key => {
           if (key === '_submitted_by') row['المدرب'] = db.data?._submitted_by || ''
           else if (key === '_team_name') row['الفريق'] = db.data?._team_name || ''
+          else if (key === '_tournament_type') row['نوع البطولة'] = db.data?._tournament_type || ''
           else if (key === '_coach_phone') row['هاتف المدرب'] = db.data?._coach_phone || ''
           else if (key === '_submitted_at') row['تاريخ التسجيل'] = new Date(db.created_at).toLocaleDateString('ar')
           else {
@@ -337,6 +344,19 @@ export default function PlayersTable() {
                 ))}
               </select>
             </div>
+          <div className="min-w-[150px]">
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">نوع البطولة</label>
+              <select
+                value={filters._tournament_type || ''}
+                onChange={(e) => handleFilterChange('_tournament_type', e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300"
+              >
+                <option value="">الكل</option>
+                {(filterOptions._tournament_type || []).map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
           {(filterOptions._coach_phone?.length > 0) && (
             <div className="min-w-[150px]">
               <label className="block text-xs text-gray-500 mb-1.5 font-medium">هاتف المدرب</label>
@@ -378,6 +398,7 @@ export default function PlayersTable() {
                 ))}
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">المدرب</th>
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">الفريق</th>
+                <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">نوع البطولة</th>
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">هاتف المدرب</th>
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">تاريخ التسجيل</th>
                 <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">إجراءات</th>
@@ -400,6 +421,7 @@ export default function PlayersTable() {
                   ))}
                   <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">{p._submitted_by || '—'}</td>
                   <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">{p._team_name || '—'}</td>
+                  <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">{p._tournament_type || '—'}</td>
                   <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap" dir="ltr">{p._coach_phone || '—'}</td>
                   <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">
                     {p.SubmittedAt ? new Date(p.SubmittedAt).toLocaleDateString('ar') : '—'}
@@ -424,7 +446,7 @@ export default function PlayersTable() {
               ))}
               {players.length === 0 && (
                 <tr>
-                  <td colSpan={fields.length + 6} className="px-4 py-12 text-center text-gray-400">
+                  <td colSpan={fields.length + 7} className="px-4 py-12 text-center text-gray-400">
                     <div className="text-4xl mb-2">📋</div>
                     لا يوجد لاعبين
                   </td>
