@@ -7,11 +7,13 @@ const items = [
   { key: 'admins', label: 'المديرين', icon: '🔐' },
 ]
 
-export default function Sidebar({ activeSection, onNavigate }) {
+export default function Sidebar({ activeSection, onNavigate, open, onClose }) {
   const { admin, logout } = useAuth()
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-primary-dark to-[#0a2e14] text-white min-h-screen flex flex-col shadow-2xl shadow-primary-dark/30">
+    <aside className={`fixed md:sticky top-0 right-0 z-30 w-64 bg-gradient-to-b from-primary-dark to-[#0a2e14] text-white min-h-screen flex flex-col shadow-2xl shadow-primary-dark/30 transition-transform duration-300 md:translate-x-0 ${
+      open ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
+    }`}>
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-2xl">
