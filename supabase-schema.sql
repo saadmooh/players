@@ -50,7 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 INSERT INTO fields (field_name, field_label, field_type, is_required, is_active, sort_order) VALUES
   ('playerNumber', 'الرقم', 'text', true, true, 0),
   ('playerName', 'اسم اللاعب', 'text', true, true, 1),
-  ('birthPlace', 'تاريخ ومكان الازدياد', 'text', false, true, 2)
+  ('fatherName', 'اسم الأب', 'text', false, true, 2),
+  ('birthPlace', 'تاريخ ومكان الازدياد', 'text', false, true, 3)
 ON CONFLICT DO NOTHING;
 
 -- Seed default admin (password: 040878001)
