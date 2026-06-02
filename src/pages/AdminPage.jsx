@@ -22,9 +22,9 @@ export default function AdminPage({ view }) {
   const ActiveSection = sections[section] || Dashboard
 
   return (
-    <div dir="rtl" className="min-h-screen flex font-cairo bg-gray-100">
+    <div dir="rtl" className="min-h-screen flex font-cairo bg-gradient-to-br from-gray-50 to-gray-100/50">
       <Sidebar activeSection={section} onNavigate={setSection} />
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-8 overflow-auto">
         <ActiveSection />
       </main>
     </div>

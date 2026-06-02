@@ -152,52 +152,57 @@ export default function PlayersTable() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-        <h2 className="text-xl font-bold text-gray-800">اللاعبين ({total})</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">اللاعبين <span className="text-primary text-lg">({total})</span></h2>
         <div className="flex gap-2">
           <button
             onClick={handleExportCSV}
             disabled={exporting}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 disabled:opacity-60 hover:shadow-lg hover:shadow-green-600/25 active:scale-[0.97]"
           >
-            {exporting ? 'جاري التصدير...' : '📥 تنزيل CSV'}
+            {exporting ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                جاري التصدير...
+              </span>
+            ) : '📥 تنزيل CSV'}
           </button>
         </div>
       </div>
 
       {selected.size > 0 && (
-        <div className="bg-primary/10 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
-          <span className="text-sm font-semibold text-gray-700">تم اختيار {selected.size} لاعب</span>
+        <div className="bg-primary/5 border border-primary/10 rounded-2xl px-5 py-3.5 mb-5 flex items-center justify-between animate-fadeIn">
+          <span className="text-sm font-semibold text-gray-700">تم اختيار <strong className="text-primary">{selected.size}</strong> لاعب</span>
           <button
             onClick={() => setBulkDeleteConfirm(true)}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors"
+            className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 active:scale-[0.97]"
           >
             حذف المحدد
           </button>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-4 space-y-3">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs text-gray-500 mb-1">بحث عام</label>
+            <label className="block text-xs text-gray-500 mb-1.5 font-medium">بحث عام</label>
             <input
               type="text"
               placeholder="بحث في جميع الحقول..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-gray-50/50 transition-all duration-300"
             />
           </div>
           {filterableFields.map(f => {
             const options = filterOptions[f.FieldName] || []
             return (
               <div key={f.FieldID} className="min-w-[150px]">
-                <label className="block text-xs text-gray-500 mb-1">{f.FieldLabel}</label>
+                <label className="block text-xs text-gray-500 mb-1.5 font-medium">{f.FieldLabel}</label>
                 <select
                   value={filters[f.FieldName] || ''}
                   onChange={(e) => handleFilterChange(f.FieldName, e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300"
                 >
                   <option value="">الكل</option>
                   {options.map(opt => (
@@ -209,11 +214,11 @@ export default function PlayersTable() {
           })}
           {(filterOptions._submitted_by?.length > 0) && (
             <div className="min-w-[150px]">
-              <label className="block text-xs text-gray-500 mb-1">المسجل</label>
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">المسجل</label>
               <select
                 value={filters._submitted_by || ''}
                 onChange={(e) => handleFilterChange('_submitted_by', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300"
               >
                 <option value="">الكل</option>
                 {filterOptions._submitted_by.map(opt => (
@@ -225,7 +230,7 @@ export default function PlayersTable() {
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               ✕ إلغاء الفلترة
             </button>
@@ -233,50 +238,54 @@ export default function PlayersTable() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
-              <tr>
-                <th className="px-4 py-3 text-right w-8">
+            <thead>
+              <tr className="bg-gradient-to-l from-gray-50 to-gray-100/50 text-gray-600 text-xs uppercase tracking-wider">
+                <th className="px-4 py-4 text-right w-8">
                   <input type="checkbox" checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="rounded border-gray-300 text-primary focus:ring-primary" />
+                    className="rounded border-gray-300 text-primary focus:ring-primary/30" />
                 </th>
                 {fields.map(f => (
-                  <th key={f.FieldID} className="px-4 py-3 text-right whitespace-nowrap">{f.FieldLabel}</th>
+                  <th key={f.FieldID} className="px-4 py-4 text-right whitespace-nowrap font-semibold">{f.FieldLabel}</th>
                 ))}
-                <th className="px-4 py-3 text-right whitespace-nowrap">المسجل</th>
-                <th className="px-4 py-3 text-right whitespace-nowrap">تاريخ التسجيل</th>
-                <th className="px-4 py-3 text-right whitespace-nowrap">إجراءات</th>
+                <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">المسجل</th>
+                <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">تاريخ التسجيل</th>
+                <th className="px-4 py-4 text-right whitespace-nowrap font-semibold">إجراءات</th>
               </tr>
             </thead>
             <tbody>
-              {players.map(p => (
-                <tr key={p.SubmissionID} className={`border-t hover:bg-gray-50 ${selected.has(p.SubmissionID) ? 'bg-primary/5' : ''}`}>
-                  <td className="px-4 py-3">
+              {players.map((p, idx) => (
+                <tr key={p.SubmissionID} className={`transition-colors duration-200 ${
+                  idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+                } hover:bg-primary/5 ${
+                  selected.has(p.SubmissionID) ? 'bg-primary/5 ring-1 ring-primary/20' : ''
+                }`}>
+                  <td className="px-4 py-3.5">
                     <input type="checkbox" checked={selected.has(p.SubmissionID)}
                       onChange={() => toggleSelect(p.SubmissionID)}
-                      className="rounded border-gray-300 text-primary focus:ring-primary" />
+                      className="rounded border-gray-300 text-primary focus:ring-primary/30" />
                   </td>
                   {fields.map(f => (
-                    <td key={f.FieldID} className="px-4 py-3 max-w-[200px] truncate">{p[f.FieldName] || '—'}</td>
+                    <td key={f.FieldID} className="px-4 py-3.5 max-w-[200px] truncate text-gray-700">{p[f.FieldName] || '—'}</td>
                   ))}
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{p._submitted_by || '—'}</td>
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                  <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">{p._submitted_by || '—'}</td>
+                  <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">
                     {p.SubmittedAt ? new Date(p.SubmittedAt).toLocaleDateString('ar') : '—'}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="px-4 py-3.5 whitespace-nowrap">
                     <div className="flex gap-2">
                       <button
                         onClick={() => setEditPlayer(p)}
-                        className="text-blue-600 hover:underline text-xs"
+                        className="text-blue-600 hover:text-blue-700 text-xs font-semibold bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all duration-200"
                       >
                         تعديل
                       </button>
                       <button
                         onClick={() => setDeleteID(p.SubmissionID)}
-                        className="text-red-500 hover:underline text-xs"
+                        className="text-red-500 hover:text-red-600 text-xs font-semibold bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all duration-200"
                       >
                         حذف
                       </button>
@@ -286,7 +295,10 @@ export default function PlayersTable() {
               ))}
               {players.length === 0 && (
                 <tr>
-                  <td colSpan={fields.length + 4} className="px-4 py-8 text-center text-gray-400">لا يوجد لاعبين</td>
+                  <td colSpan={fields.length + 4} className="px-4 py-12 text-center text-gray-400">
+                    <div className="text-4xl mb-2">📋</div>
+                    لا يوجد لاعبين
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -300,10 +312,10 @@ export default function PlayersTable() {
             <button
               key={p}
               onClick={() => setPage(p)}
-              className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${
+              className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all duration-300 ${
                 p === page
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                  ? 'bg-primary text-white shadow-md shadow-primary/20 scale-105'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
               }`}
             >
               {p}

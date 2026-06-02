@@ -11,6 +11,7 @@ export default function ExcelUpload({ submitterName, onSuccess }) {
   const [sheetColumns, setSheetColumns] = useState([])
   const [mapping, setMapping] = useState({})
   const [submitting, setSubmitting] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef()
 
   function handleFile(file) {
@@ -52,6 +53,7 @@ export default function ExcelUpload({ submitterName, onSuccess }) {
 
   function handleDrop(e) {
     e.preventDefault()
+    setDragOver(false)
     const file = e.dataTransfer.files[0]
     if (file) handleFile(file)
   }
@@ -61,13 +63,18 @@ export default function ExcelUpload({ submitterName, onSuccess }) {
       {step === 'upload' && (
         <div
           onDrop={handleDrop}
-          onDragOver={(e) => e.preventDefault()}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
           onClick={() => inputRef.current.click()}
-          className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-primary hover:bg-green-50 transition-colors"
+          className={`border-3 border-dashed rounded-2xl p-14 text-center cursor-pointer transition-all duration-300 ${
+            dragOver
+              ? 'border-primary bg-primary/5 scale-[1.02]'
+              : 'border-gray-200 hover:border-primary/50 hover:bg-primary/5'
+          }`}
         >
-          <div className="text-5xl mb-3">📂</div>
-          <p className="text-gray-600 font-semibold">اسحب ملف Excel هنا</p>
-          <p className="text-gray-400 text-sm mt-1">أو انقر للاختيار — يقبل .xlsx, .xls, .csv</p>
+          <div className={`text-6xl mb-4 transition-transform duration-300 ${dragOver ? 'scale-110' : ''}`}>📂</div>
+          <p className="text-gray-700 font-bold text-lg mb-1">اسحب ملف Excel هنا</p>
+          <p className="text-gray-400 text-sm">أو انقر للاختيار — يقبل .xlsx, .xls, .csv</p>
           <input
             ref={inputRef}
             type="file"
@@ -80,25 +87,33 @@ export default function ExcelUpload({ submitterName, onSuccess }) {
 
       {step === 'preview' && (
         <div>
-          <h3 className="font-bold text-gray-700 mb-3">معاينة البيانات (أول 5 صفوف)</h3>
-          <div className="overflow-x-auto border rounded-lg mb-4">
-            <table className="text-xs w-full">
-              <thead className="bg-gray-100">
-                <tr>{sheetColumns.map(c => <th key={c} className="px-3 py-2 text-right">{c}</th>)}</tr>
+          <h3 className="font-bold text-gray-800 mb-3">معاينة البيانات <span className="text-gray-400 font-normal text-sm">(أول 5 صفوف)</span></h3>
+          <div className="overflow-x-auto border border-gray-200 rounded-xl mb-4">
+            <table className="text-sm w-full">
+              <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+                <tr>{sheetColumns.map(c => <th key={c} className="px-4 py-3 text-right font-semibold">{c}</th>)}</tr>
               </thead>
               <tbody>
                 {sheetData.slice(0, 5).map((row, i) => (
-                  <tr key={i} className="border-t">
-                    {sheetColumns.map(c => <td key={c} className="px-3 py-2">{row[c]}</td>)}
+                  <tr key={i} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                    {sheetColumns.map(c => <td key={c} className="px-4 py-3 text-gray-700">{row[c]}</td>)}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="text-gray-500 text-sm mb-4">إجمالي الصفوف: {sheetData.length}</p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-gray-500 text-sm">إجمالي الصفوف: <strong className="text-gray-700">{sheetData.length}</strong></p>
+            <button
+              onClick={() => setStep('upload')}
+              className="text-gray-400 hover:text-gray-600 text-sm transition-colors"
+            >
+              ✕ تغيير الملف
+            </button>
+          </div>
           <button
             onClick={() => setStep('mapping')}
-            className="w-full bg-primary text-white font-bold py-3 rounded-lg"
+            className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98]"
           >
             التالي: ربط الأعمدة ←
           </button>

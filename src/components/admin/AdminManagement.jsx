@@ -48,36 +48,45 @@ export default function AdminManagement() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800">إدارة المديرين</h2>
+        <h2 className="text-2xl font-bold text-gray-800">إدارة المديرين</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors"
+          className="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.97]"
         >
           + إضافة مدير
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 text-xs uppercase">
+          <thead className="bg-gradient-to-l from-gray-50 to-gray-100/50 text-gray-600 text-xs uppercase tracking-wider">
             <tr>
-              <th className="px-4 py-3 text-right">اسم المستخدم</th>
-              <th className="px-4 py-3 text-right">تاريخ الإنشاء</th>
-              <th className="px-4 py-3 text-right">إجراءات</th>
+              <th className="px-4 py-4 text-right font-semibold">اسم المستخدم</th>
+              <th className="px-4 py-4 text-right font-semibold">تاريخ الإنشاء</th>
+              <th className="px-4 py-4 text-right font-semibold">إجراءات</th>
             </tr>
           </thead>
           <tbody>
-            {admins.map(a => (
-              <tr key={a.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{a.username}</td>
-                <td className="px-4 py-3 text-gray-500">
+            {admins.map((a, idx) => (
+              <tr key={a.id} className={`transition-colors duration-200 ${
+                idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+              } hover:bg-primary/5`}>
+                <td className="px-4 py-3.5 font-medium text-gray-800">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">
+                      {a.username.charAt(0).toUpperCase()}
+                    </span>
+                    {a.username}
+                  </div>
+                </td>
+                <td className="px-4 py-3.5 text-gray-500">
                   {new Date(a.created_at).toLocaleDateString('ar')}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3.5">
                   {a.username !== admin?.username && (
                     <button
                       onClick={() => setDeleteID(a.id)}
-                      className="text-red-500 hover:underline text-xs"
+                      className="text-red-500 hover:text-red-600 text-xs font-semibold bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-all duration-200"
                     >
                       حذف
                     </button>
@@ -90,39 +99,49 @@ export default function AdminManagement() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">إضافة مدير جديد</h3>
-            <form onSubmit={handleCreate} className="space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 border border-white/20">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <span className="text-lg">➕</span>
+              </div>
+              <h3 className="text-lg font-bold text-gray-800">إضافة مدير جديد</h3>
+            </div>
+            <form onSubmit={handleCreate} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-600 mb-1">اسم المستخدم</label>
+                <label className="block text-sm font-semibold text-gray-600 mb-1.5">اسم المستخدم</label>
                 <input
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-gray-50/50 transition-all duration-300"
                   placeholder="أدخل اسم المستخدم"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-600 mb-1">كلمة المرور</label>
+                <label className="block text-sm font-semibold text-gray-600 mb-1.5">كلمة المرور</label>
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-gray-50/50 transition-all duration-300"
                   placeholder="أدخل كلمة المرور"
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={createMutation.isPending}
-                  className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-2.5 rounded-lg text-sm transition-colors disabled:opacity-60">
-                  {createMutation.isPending ? 'جاري الحفظ...' : 'إضافة'}
+                  className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl text-sm transition-all duration-300 disabled:opacity-60 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98]">
+                  {createMutation.isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      جاري الحفظ...
+                    </span>
+                  ) : 'إضافة'}
                 </button>
                 <button type="button" onClick={() => setShowForm(false)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-lg text-sm transition-colors">
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl text-sm transition-all duration-300 active:scale-[0.98]">
                   إلغاء
                 </button>
               </div>
