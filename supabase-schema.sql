@@ -48,16 +48,10 @@ CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 
 -- Seed default fields
 INSERT INTO fields (field_name, field_label, field_type, is_required, is_active, sort_order) VALUES
-  ('playerName', 'اسم اللاعب', 'text', true, true, 0),
-  ('phoneNumber', 'رقم الهاتف', 'tel', true, true, 1),
-  ('age', 'العمر', 'number', false, true, 2),
-  ('position', 'المركز', 'select', true, true, 3),
-  ('email', 'البريد الإلكتروني', 'email', false, true, 4),
-  ('notes', 'ملاحظات', 'textarea', false, true, 5)
+  ('playerNumber', 'الرقم', 'text', true, true, 0),
+  ('playerName', 'اسم اللاعب', 'text', true, true, 1),
+  ('birthPlace', 'تاريخ ومكان الازدياد', 'text', false, true, 2)
 ON CONFLICT DO NOTHING;
-
--- Seed dropdown options for 'position'
-UPDATE fields SET dropdown_options = 'مهاجم,مدافع,وسط,حارس' WHERE field_name = 'position' AND dropdown_options IS NULL;
 
 -- Seed default admin (password: 040878001)
 INSERT INTO admins (username, password_hash)
