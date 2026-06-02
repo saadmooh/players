@@ -8,9 +8,11 @@ export default function UserPage() {
   const [activeTab, setActiveTab] = useState('manual')
   const [toast, setToast] = useState(null)
   const [submitterName, setSubmitterName] = useState('')
+  const [nameInput, setNameInput] = useState('')
+  const [nameConfirmed, setNameConfirmed] = useState(false)
   const navigate = useNavigate()
 
-  if (!submitterName) {
+  if (!nameConfirmed) {
     return (
       <div dir="rtl" className="min-h-screen bg-gray-50 font-cairo flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md mx-4 text-center">
@@ -20,14 +22,14 @@ export default function UserPage() {
           <input
             type="text"
             placeholder="الاسم الثلاثي"
-            value={submitterName}
-            onChange={e => setSubmitterName(e.target.value)}
+            value={nameInput}
+            onChange={e => setNameInput(e.target.value)}
             className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-center mb-4"
             autoFocus
           />
           <button
-            disabled={!submitterName.trim()}
-            onClick={() => setSubmitterName(submitterName.trim())}
+            disabled={!nameInput.trim()}
+            onClick={() => { setSubmitterName(nameInput.trim()); setNameConfirmed(true) }}
             className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50"
           >
             بدء التسجيل
@@ -60,7 +62,7 @@ export default function UserPage() {
             المسجل: <strong>{submitterName}</strong>
           </span>
           <button
-            onClick={() => setSubmitterName('')}
+            onClick={() => { setNameInput(''); setNameConfirmed(false) }}
             className="text-xs text-gray-500 hover:text-gray-700 underline"
           >
             تغيير
