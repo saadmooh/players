@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { usePlayers, useDeletePlayer, useBulkDeletePlayers, useUpdatePlayer } from '../../hooks/usePlayers'
 import { useActiveFields } from '../../hooks/useFields'
@@ -34,12 +34,43 @@ export default function PlayersTable() {
   const [deleteID, setDeleteID] = useState(null)
   const [editPlayer, setEditPlayer] = useState(null)
   const [exporting, setExporting] = useState(false)
+  const [showColumnPicker, setShowColumnPicker] = useState(false)
+  const [csvColumns, setCsvColumns] = useState(null)
   const [filterOptions, setFilterOptions] = useState({})
   const [selected, setSelected] = useState(new Set())
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false)
+  const columnPickerRef = useRef(null)
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (columnPickerRef.current && !columnPickerRef.current.contains(e.target)) {
+        setShowColumnPicker(false)
+      }
+    }
+    if (showColumnPicker) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showColumnPicker])
 
   const { data: fields = [] } = useActiveFields()
   const searchFields = [...fields.map(f => f.FieldName), '_submitted_by', '_team_name', '_coach_phone']
+
+  const systemColumnDefs = [
+    { key: '_submitted_by', label: 'المسجل' },
+    { key: '_team_name', label: 'الفريق' },
+    { key: '_coach_phone', label: 'هاتف المدرب' },
+    { key: '_submitted_at', label: 'تاريخ التسجيل' },
+  ]
+
+  const allColumnDefs = [
+    ...systemColumnDefs,
+    ...fields.map(f => ({ key: f.FieldName, label: f.FieldLabel })),
+  ]
+
+  useEffect(() => {
+    if (!csvColumns && allColumnDefs.length) {
+      setCsvColumns(allColumnDefs.map(c => c.key))
+    }
+  }, [allColumnDefs.length])
 
   const { data, isLoading } = usePlayers(admin?.token, page, search, filters, searchFields)
   const deleteMutation = useDeletePlayer(admin?.token)
@@ -140,9 +171,16 @@ export default function PlayersTable() {
         .select('*')
         .order('created_at', { ascending: false })
       const rows = allData.map(db => {
-        const row = { 'المسجل': db.data?._submitted_by || '', 'الفريق': db.data?._team_name || '', 'هاتف المدرب': db.data?._coach_phone || '', 'تاريخ التسجيل': new Date(db.created_at).toLocaleDateString('ar') }
-        fields.forEach(f => {
-          row[f.FieldLabel] = db.data?.[f.FieldName] || ''
+        const row = {}
+        csvColumns?.forEach(key => {
+          if (key === '_submitted_by') row['المسجل'] = db.data?._submitted_by || ''
+          else if (key === '_team_name') row['الفريق'] = db.data?._team_name || ''
+          else if (key === '_coach_phone') row['هاتف المدرب'] = db.data?._coach_phone || ''
+          else if (key === '_submitted_at') row['تاريخ التسجيل'] = new Date(db.created_at).toLocaleDateString('ar')
+          else {
+            const def = allColumnDefs.find(d => d.key === key)
+            if (def) row[def.label] = db.data?.[key] || ''
+          }
         })
         return row
       })
@@ -152,7 +190,7 @@ export default function PlayersTable() {
     } finally {
       setExporting(false)
     }
-  }, [fields])
+  }, [fields, csvColumns])
 
   if (isLoading) return <LoadingSpinner />
 
@@ -164,10 +202,55 @@ export default function PlayersTable() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-2xl font-bold text-gray-800">اللاعبين <span className="text-primary text-lg">({total})</span></h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-start">
+          <div className="relative" ref={columnPickerRef}>
+            <button
+              onClick={() => setShowColumnPicker(!showColumnPicker)}
+              className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:shadow-sm active:scale-[0.97]"
+            >
+              ⚙️ الأعمدة
+            </button>
+            {showColumnPicker && (
+              <div className="absolute left-0 top-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 z-50 min-w-[220px]">
+                <p className="text-xs text-gray-500 mb-3 font-medium">اختر الأعمدة للتصدير</p>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {allColumnDefs.map(def => (
+                    <label key={def.key} className="flex items-center gap-2.5 cursor-pointer text-sm text-gray-700 hover:text-gray-900 transition-colors px-1 py-1 rounded-lg hover:bg-gray-50">
+                      <input
+                        type="checkbox"
+                        checked={csvColumns?.includes(def.key) ?? true}
+                        onChange={() => {
+                          setCsvColumns(prev => {
+                            if (prev.includes(def.key)) return prev.filter(k => k !== def.key)
+                            return [...prev, def.key]
+                          })
+                        }}
+                        className="rounded border-gray-300 text-primary focus:ring-primary/30"
+                      />
+                      {def.label}
+                    </label>
+                  ))}
+                </div>
+                <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => setCsvColumns(allColumnDefs.map(d => d.key))}
+                    className="text-xs text-primary hover:text-primary-dark font-semibold transition-colors"
+                  >
+                    تحديد الكل
+                  </button>
+                  <button
+                    onClick={() => setCsvColumns([])}
+                    className="text-xs text-gray-400 hover:text-gray-600 font-semibold transition-colors"
+                  >
+                    إلغاء الكل
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleExportCSV}
-            disabled={exporting}
+            disabled={exporting || !csvColumns?.length}
             className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 disabled:opacity-60 hover:shadow-lg hover:shadow-green-600/25 active:scale-[0.97]"
           >
             {exporting ? (

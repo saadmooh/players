@@ -51,7 +51,8 @@ INSERT INTO fields (field_name, field_label, field_type, is_required, is_active,
   ('playerNumber', 'الرقم', 'text', true, true, 0),
   ('playerName', 'اسم اللاعب', 'text', true, true, 1),
   ('fatherName', 'اسم الأب', 'text', false, true, 2),
-  ('birthPlace', 'تاريخ ومكان الازدياد', 'text', false, true, 3)
+  ('birthDate', 'تاريخ الازدياد', 'text', false, true, 3),
+  ('birthPlace', 'مكان الازدياد', 'text', false, true, 4)
 ON CONFLICT DO NOTHING;
 
 -- Seed default admin (password: 040878001)
