@@ -39,7 +39,7 @@ export default function PlayersTable() {
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false)
 
   const { data: fields = [] } = useActiveFields()
-  const searchFields = fields.map(f => f.FieldName)
+  const searchFields = [...fields.map(f => f.FieldName), '_submitted_by']
 
   const { data, isLoading } = usePlayers(admin?.token, page, search, filters, searchFields)
   const deleteMutation = useDeletePlayer(admin?.token)
@@ -79,6 +79,11 @@ export default function PlayersTable() {
       const { data: vals } = await supabase.rpc('get_distinct_field_values', { field_name: f.FieldName })
       if (vals?.length) {
         setFilterOptions(prev => ({ ...prev, [f.FieldName]: vals.map(v => v.value).filter(Boolean) }))
+      }
+    })
+    supabase.rpc('get_distinct_field_values', { field_name: '_submitted_by' }).then(({ data: vals }) => {
+      if (vals?.length) {
+        setFilterOptions(prev => ({ ...prev, _submitted_by: vals.map(v => v.value).filter(Boolean) }))
       }
     })
   }, [fields])
@@ -125,7 +130,7 @@ export default function PlayersTable() {
         .select('*')
         .order('created_at', { ascending: false })
       const rows = allData.map(db => {
-        const row = { 'تاريخ التسجيل': new Date(db.created_at).toLocaleDateString('ar') }
+        const row = { 'المسجل': db.data?._submitted_by || '', 'تاريخ التسجيل': new Date(db.created_at).toLocaleDateString('ar') }
         fields.forEach(f => {
           row[f.FieldLabel] = db.data?.[f.FieldName] || ''
         })
@@ -202,6 +207,21 @@ export default function PlayersTable() {
               </div>
             )
           })}
+          {(filterOptions._submitted_by?.length > 0) && (
+            <div className="min-w-[150px]">
+              <label className="block text-xs text-gray-500 mb-1">المسجل</label>
+              <select
+                value={filters._submitted_by || ''}
+                onChange={(e) => handleFilterChange('_submitted_by', e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="">الكل</option>
+                {filterOptions._submitted_by.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
@@ -226,6 +246,7 @@ export default function PlayersTable() {
                 {fields.map(f => (
                   <th key={f.FieldID} className="px-4 py-3 text-right whitespace-nowrap">{f.FieldLabel}</th>
                 ))}
+                <th className="px-4 py-3 text-right whitespace-nowrap">المسجل</th>
                 <th className="px-4 py-3 text-right whitespace-nowrap">تاريخ التسجيل</th>
                 <th className="px-4 py-3 text-right whitespace-nowrap">إجراءات</th>
               </tr>
@@ -241,6 +262,7 @@ export default function PlayersTable() {
                   {fields.map(f => (
                     <td key={f.FieldID} className="px-4 py-3 max-w-[200px] truncate">{p[f.FieldName] || '—'}</td>
                   ))}
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{p._submitted_by || '—'}</td>
                   <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                     {p.SubmittedAt ? new Date(p.SubmittedAt).toLocaleDateString('ar') : '—'}
                   </td>
@@ -264,7 +286,7 @@ export default function PlayersTable() {
               ))}
               {players.length === 0 && (
                 <tr>
-                  <td colSpan={fields.length + 3} className="px-4 py-8 text-center text-gray-400">لا يوجد لاعبين</td>
+                  <td colSpan={fields.length + 4} className="px-4 py-8 text-center text-gray-400">لا يوجد لاعبين</td>
                 </tr>
               )}
             </tbody>

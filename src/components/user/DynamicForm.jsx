@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useActiveFields } from '../../hooks/useFields'
 import { userAPI } from '../../api/supabaseApi'
 
-export default function DynamicForm({ onSuccess }) {
+export default function DynamicForm({ submitterName, onSuccess }) {
   const { data: fields = [], isLoading } = useActiveFields()
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
   const [submitting, setSubmitting] = useState(false)
@@ -39,7 +39,7 @@ export default function DynamicForm({ onSuccess }) {
   async function onSubmit(values) {
     setSubmitting(true)
     try {
-      await userAPI.submitPlayer(values)
+      await userAPI.submitPlayer({ ...values, _submitted_by: submitterName })
       reset()
       onSuccess('تم حفظ بيانات اللاعب بنجاح ✓')
     } catch (err) {

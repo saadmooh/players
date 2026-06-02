@@ -4,7 +4,7 @@ import { useActiveFields } from '../../hooks/useFields'
 import ColumnMapper from './ColumnMapper'
 import { userAPI } from '../../api/supabaseApi'
 
-export default function ExcelUpload({ onSuccess }) {
+export default function ExcelUpload({ submitterName, onSuccess }) {
   const { data: systemFields = [] } = useActiveFields()
   const [step, setStep] = useState('upload')
   const [sheetData, setSheetData] = useState([])
@@ -29,7 +29,7 @@ export default function ExcelUpload({ onSuccess }) {
 
   async function handleSubmit() {
     const players = sheetData.map(row => {
-      const player = {}
+      const player = { _submitted_by: submitterName }
       Object.entries(mapping).forEach(([sheetCol, systemField]) => {
         if (systemField) player[systemField] = row[sheetCol]
       })

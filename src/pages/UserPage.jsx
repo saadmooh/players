@@ -7,7 +7,35 @@ import Toast from '../components/shared/Toast'
 export default function UserPage() {
   const [activeTab, setActiveTab] = useState('manual')
   const [toast, setToast] = useState(null)
+  const [submitterName, setSubmitterName] = useState('')
   const navigate = useNavigate()
+
+  if (!submitterName) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-gray-50 font-cairo flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md mx-4 text-center">
+          <div className="text-5xl mb-4">✍️</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">مرحباً بك</h2>
+          <p className="text-gray-500 text-sm mb-6">من فضلك أدخل اسمك قبل البدء</p>
+          <input
+            type="text"
+            placeholder="الاسم الثلاثي"
+            value={submitterName}
+            onChange={e => setSubmitterName(e.target.value)}
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-center mb-4"
+            autoFocus
+          />
+          <button
+            disabled={!submitterName.trim()}
+            onClick={() => setSubmitterName(submitterName.trim())}
+            className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50"
+          >
+            بدء التسجيل
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 font-cairo">
@@ -27,6 +55,18 @@ export default function UserPage() {
       </header>
 
       <main className="max-w-2xl mx-auto p-6">
+        <div className="bg-primary/10 rounded-xl px-5 py-3 mb-4 flex items-center justify-between">
+          <span className="text-sm text-gray-700">
+            المسجل: <strong>{submitterName}</strong>
+          </span>
+          <button
+            onClick={() => setSubmitterName('')}
+            className="text-xs text-gray-500 hover:text-gray-700 underline"
+          >
+            تغيير
+          </button>
+        </div>
+
         <div className="flex border-b border-gray-200 mb-6">
           <button
             onClick={() => setActiveTab('manual')}
@@ -51,10 +91,10 @@ export default function UserPage() {
         </div>
 
         {activeTab === 'manual' && (
-          <DynamicForm onSuccess={(msg) => setToast({ type: 'success', msg })} />
+          <DynamicForm submitterName={submitterName} onSuccess={(msg) => setToast({ type: 'success', msg })} />
         )}
         {activeTab === 'excel' && (
-          <ExcelUpload onSuccess={(msg) => setToast({ type: 'success', msg })} />
+          <ExcelUpload submitterName={submitterName} onSuccess={(msg) => setToast({ type: 'success', msg })} />
         )}
       </main>
 
