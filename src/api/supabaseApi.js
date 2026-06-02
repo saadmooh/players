@@ -165,7 +165,7 @@ export const playersAPI = {
 export const configAPI = {
   async getFields(token) {
     await validateToken(token)
-    const { data, error } = await supabase.from('fields').select('*').order('sort_order')
+    const { data, error } = await supabase.from('fields').select('*').eq('is_active', true).order('sort_order')
     if (error) throw new Error(error.message)
     return (data || []).map(toGASField)
   },
