@@ -25,9 +25,13 @@ CREATE POLICY players_select_admin ON players
 CREATE POLICY players_delete_admin ON players
   FOR DELETE USING (true);
 
--- Admins: only select (no insert/update/delete from public)
+-- Admins: app-level auth handles validation via sessions table
 CREATE POLICY admins_select_auth ON admins
   FOR SELECT USING (true);
+CREATE POLICY admins_insert_auth ON admins
+  FOR INSERT WITH CHECK (true);
+CREATE POLICY admins_delete_auth ON admins
+  FOR DELETE USING (true);
 
 -- Sessions: full access for app-level auth
 CREATE POLICY sessions_all ON sessions
