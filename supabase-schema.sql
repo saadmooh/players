@@ -1,4 +1,4 @@
--- Run this in Supabase SQL Editor (https://supabase.com/dashboard/project/xylzhndprdnltljbklet/sql/new)
+-- Run this in Supabase SQL Editor (https://supabase.com/dashboard/project/ssqzqmsdmifearmfwjrr/sql/new)
 
 -- 1. Fields table (dynamic form configuration)
 CREATE TABLE IF NOT EXISTS fields (
